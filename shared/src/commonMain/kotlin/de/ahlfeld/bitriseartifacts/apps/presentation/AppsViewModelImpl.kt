@@ -7,19 +7,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 
-class AppsViewModelImpl constructor(
+class AppsViewModelImpl(
     private val getAppsUseCase: GetAppsUseCase
 ) : AppsViewModel() {
     override val uiState: StateFlow<AppsUiState> = flow {
-        emit(AppsUiState.Loading)
+        getAppsUseCase().onSuccess { apps ->
+            emit(AppsUiState.Content(apps.map { app ->
+                AppItem(
+                    avatarUrl = app.avatarUrl ?: "",
+                    ownerName = app.ownerName,
+                    title = app.title
+                )
+            }))
+        }.onFailure {
+            emit(AppsUiState.Error(it.message ?: "Unknown error"))
+        }
     }.onStart {
-        val result = getAppsUseCase()
+        emit(AppsUiState.Loading)
     }.stateInWhileSubscribed(
         scope = viewModelScope,
         initialValue = AppsUiState.Loading
     )
 
     override fun handleUiEvent(event: AppsUiEvent) {
-        TODO("Not yet implemented")
+        // Handle events
     }
 }

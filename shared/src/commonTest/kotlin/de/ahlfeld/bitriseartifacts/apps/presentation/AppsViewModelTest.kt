@@ -4,14 +4,16 @@ import de.ahlfeld.bitriseartifacts.apps.domain.model.App
 import de.ahlfeld.bitriseartifacts.apps.domain.usecase.GetAppsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppsViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
@@ -25,7 +27,9 @@ class AppsViewModelTest {
     @Test
     fun `initial state is Loading`() = runTest {
         val useCase = GetAppsUseCase(FakeAppsRepository())
+
         val viewModel = AppsViewModelImpl(useCase)
+
         assertEquals(AppsUiState.Loading, viewModel.uiState.value)
     }
 
@@ -36,18 +40,32 @@ class AppsViewModelTest {
         )
         val useCase = GetAppsUseCase(FakeAppsRepository(apps))
         val viewModel = AppsViewModelImpl(useCase)
-        
-        // In a real TDD we might need to trigger loadApps if not in init, 
-        // but let's assume it's in init or we call it.
-        
-        val expectedApps = listOf(
-            AppItem("avatar", "owner", "title")
+
+        var actualUiState: AppsUiState? = null
+        val job = launch {
+            viewModel.uiState.collect {
+                actualUiState = it
+            }
+        }
+
+        advanceUntilIdle()
+
+        // Wait for the flow to emit the Content state
+        // Since we use UnconfinedTestDispatcher and stateIn, it should be immediate if the flow completes
+
+        assertEquals(
+            AppsUiState.Content(
+                apps = listOf(
+                    element = AppItem("avatar", "owner", "title")
+                )
+            ), actualUiState
         )
-        assertTrue(viewModel.uiState.value is AppsUiState.Content)
-        assertEquals(expectedApps, (viewModel.uiState.value as AppsUiState.Content).apps)
+
+        job.cancel()
     }
 }
 
-private class FakeAppsRepository(private val apps: List<App> = emptyList()) : de.ahlfeld.bitriseartifacts.apps.domain.repository.AppsRepository {
+private class FakeAppsRepository(private val apps: List<App> = emptyList()) :
+    de.ahlfeld.bitriseartifacts.apps.domain.repository.AppsRepository {
     override suspend fun getApps(): List<App> = apps
 }

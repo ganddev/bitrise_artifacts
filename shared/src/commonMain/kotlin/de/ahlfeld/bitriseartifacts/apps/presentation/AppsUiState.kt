@@ -5,9 +5,3 @@ sealed interface AppsUiState {
     data class Content(val apps: List<AppItem>) : AppsUiState
     data class Error(val message: String) : AppsUiState
 }
-
-data class AppItem(
-    val avatarUrl : String,
-    val ownerName: String,
-    val title : String,
-)

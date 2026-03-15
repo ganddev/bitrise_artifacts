@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Devices.PIXEL_7_PRO
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -107,7 +108,10 @@ private fun AppItem(app: AppItem) {
 
 
 @Composable
-@Preview
+@Preview(
+    showSystemUi = true,
+    device = PIXEL_7_PRO
+)
 private fun AppsScreenPreview(
     @PreviewParameter(AppsUiStateProvider::class) uiState: AppsUiState
 ) {

@@ -1,29 +1,24 @@
 {
   "data": [
     {
-      "avatar_url": "string",
-      "is_disabled": true,
-      "is_github_checks_enabled": true,
-      "is_public": true,
+      "slug": "app-slug-1",
+      "title": "App Title 1",
       "owner": {
-        "account_type": "string",
-        "name": "string",
-        "slug": "string"
+        "name": "Owner Name 1"
       },
-      "project_id": "string",
-      "project_type": "string",
-      "provider": "string",
-      "repo_owner": "string",
-      "repo_slug": "string",
-      "repo_url": "string",
-      "slug": "string",
-      "status": 0,
-      "title": "string"
+      "avatar_url": "https://example.com/avatar1.png"
+    },
+    {
+      "slug": "app-slug-2",
+      "title": "App Title 2",
+      "owner": {
+        "name": "Owner Name 2"
+      },
+      "avatar_url": null
     }
   ],
   "paging": {
-    "next": "string",
-    "page_item_limit": 0,
-    "total_item_count": 0
+    "total_item_count": 2,
+    "page_item_limit": 50
   }
 }

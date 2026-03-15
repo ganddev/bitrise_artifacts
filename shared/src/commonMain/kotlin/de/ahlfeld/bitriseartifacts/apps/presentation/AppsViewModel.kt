@@ -1,4 +1,4 @@
-package de.ahlfeld.bitriseartifacts.presentation
+package de.ahlfeld.bitriseartifacts.apps.presentation
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.StateFlow

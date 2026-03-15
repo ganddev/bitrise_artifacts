@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "slug": "app-slug-1",
+      "title": "App Title 1",
+      "owner": {
+        "name": "Owner Name 1"
+      },
+      "avatar_url": "https://example.com/avatar1.png"
+    },
+    {
+      "slug": "app-slug-2",
+      "title": "App Title 2",
+      "owner": {
+        "name": "Owner Name 2"
+      },
+      "avatar_url": null
+    }
+  ],
+  "paging": {
+    "total_item_count": 2,
+    "page_item_limit": 50
+  }
+}

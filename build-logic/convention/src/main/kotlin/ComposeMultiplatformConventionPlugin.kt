@@ -12,6 +12,7 @@ class ComposeMultiplatformConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("org.jetbrains.compose")
                 apply("org.jetbrains.kotlin.plugin.compose")
+                apply("com.android.kotlin.multiplatform.library")
             }
 
             val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -44,7 +45,7 @@ class ComposeMultiplatformConventionPlugin : Plugin<Project> {
             // For Android debug tools, only if an Android plugin is applied
             pluginManager.withPlugin("com.android.base") {
                 dependencies {
-                    add("debugImplementation", libs.findLibrary("compose-uiTooling").get())
+                    add("androidRuntimeClasspath", libs.findLibrary("compose-uiTooling").get())
                 }
             }
         }

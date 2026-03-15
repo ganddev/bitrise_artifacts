@@ -1,4 +1,7 @@
 package de.ahlfeld.bitriseartifacts.presentation
 
-interface AppsUiEvent {
+sealed interface AppsUiEvent {
+    data class OnAppItemClicked(
+        val item: AppItem
+    ) : AppsUiEvent
 }

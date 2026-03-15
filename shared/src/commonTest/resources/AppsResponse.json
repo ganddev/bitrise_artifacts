@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "avatar_url": "string",
+      "is_disabled": true,
+      "is_github_checks_enabled": true,
+      "is_public": true,
+      "owner": {
+        "account_type": "string",
+        "name": "string",
+        "slug": "string"
+      },
+      "project_id": "string",
+      "project_type": "string",
+      "provider": "string",
+      "repo_owner": "string",
+      "repo_slug": "string",
+      "repo_url": "string",
+      "slug": "string",
+      "status": 0,
+      "title": "string"
+    }
+  ],
+  "paging": {
+    "next": "string",
+    "page_item_limit": 0,
+    "total_item_count": 0
+  }
+}

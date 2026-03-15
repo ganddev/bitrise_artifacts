@@ -73,3 +73,8 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+
+# KMP Plugins
+bitrise-kmp-network = { id = "bitriseartifacts.ktor" }
+bitrise-kmp-compose = { id = "bitriseartifacts.compose.multiplatform" }

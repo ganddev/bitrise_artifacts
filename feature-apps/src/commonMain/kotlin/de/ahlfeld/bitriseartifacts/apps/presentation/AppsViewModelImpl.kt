@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 
 class AppsViewModelImpl(
-    private val getAppsUseCase: GetAppsUseCase
+    val getAppsUseCase: GetAppsUseCase
 ) : AppsViewModel() {
     override val uiState: StateFlow<AppsUiState> = flow {
         getAppsUseCase().onSuccess { apps ->

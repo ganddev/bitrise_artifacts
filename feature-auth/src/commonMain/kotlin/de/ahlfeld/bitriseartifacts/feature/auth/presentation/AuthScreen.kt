@@ -10,15 +10,21 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel,
-    onTokenSaved: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.isSaved) {
-        if (uiState.isSaved) {
-            onTokenSaved()
-        }
-    }
+
+    AuthScreenInternal(
+        uiState,
+        viewModel::handleUiEvent
+    )
+}
+
+@Composable
+private fun AuthScreenInternal(
+    uiState: AuthUiState,
+    uiEventHandler: (LoginUiEvent) -> Unit = {}
+) {
 
     Column(
         modifier = Modifier
@@ -34,14 +40,18 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = uiState.token,
-            onValueChange = viewModel::onTokenChanged,
+            onValueChange = {
+                uiEventHandler(LoginUiEvent.OnTokenChanged(it))
+            },
             label = { Text("API Token") },
             modifier = Modifier.fillMaxWidth(),
             enabled = !uiState.isLoading
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = viewModel::onSaveToken,
+            onClick = {
+                uiEventHandler(LoginUiEvent.OnLoginButtonClicked)
+            },
             modifier = Modifier.fillMaxWidth(),
             enabled = uiState.token.isNotBlank() && !uiState.isLoading
         ) {

@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
-private const val BITRISE_BASE_API_URL = "https://api.bitrise.io/v0.1"
+private const val BITRISE_BASE_API_URL = "https://api.bitrise.io/v0.1/"
 
 val networkModule = module {
     single {

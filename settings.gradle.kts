@@ -31,5 +31,7 @@ dependencyResolutionManagement {
 }
 
 include(":androidApp")
-include(":shared")
+include(":feature-apps")
 include(":feature-auth")
+include(":feature-auth-api")
+include(":shared")

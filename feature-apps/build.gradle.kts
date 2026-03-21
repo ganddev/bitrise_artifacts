@@ -15,7 +15,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "Shared"
+            baseName = "Apps"
             isStatic = true
         }
     }
@@ -23,7 +23,7 @@ kotlin {
     jvm()
 
     android {
-        namespace = "de.ahlfeld.bitriseartifacts.shared"
+        namespace = "de.ahlfeld.bitriseartifacts.apps"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
@@ -44,10 +44,9 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
-            implementation(libs.ktor.client.mock)
         }
         commonMain.dependencies {
-            implementation(project(":feature-auth"))
+            implementation(projects.featureAuthApi)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.viewmodel)
@@ -56,8 +55,4 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
     }
-}
-
-dependencies {
-    androidRuntimeClasspath(libs.compose.uiTooling)
 }

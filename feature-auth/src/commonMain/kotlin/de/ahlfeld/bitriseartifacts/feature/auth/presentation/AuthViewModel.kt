@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.SaveTokenUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
@@ -14,11 +15,16 @@ class AuthViewModel(
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun onTokenChanged(token: String) {
-        _uiState.value = _uiState.value.copy(token = token)
+    fun handleUiEvent(event: LoginUiEvent) {
+        when (event) {
+            is LoginUiEvent.OnLoginButtonClicked -> onSaveToken()
+            is LoginUiEvent.OnTokenChanged -> _uiState.update {
+                it.copy(token = event.token)
+            }
+        }
     }
 
-    fun onSaveToken() {
+    private fun onSaveToken() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             saveTokenUseCase(_uiState.value.token)

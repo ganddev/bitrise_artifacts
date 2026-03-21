@@ -16,9 +16,9 @@ internal class DataStoreAuthRepository(
         val TOKEN_KEY = stringPreferencesKey("bitrise_api_token")
     }
 
-    override fun getToken(): Flow<String?> {
+    override fun getToken(): Flow<String> {
         return dataStore.data.map { preferences ->
-            preferences[TOKEN_KEY]
+            preferences[TOKEN_KEY] ?: ""
         }
     }
 

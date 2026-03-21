@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.androidKmpLibraryPluging)
     alias(libs.plugins.bitrise.kmp.network)
     alias(libs.plugins.bitrise.kmp.compose)
+    alias(libs.plugins.bitrise.kmp.koin)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -35,17 +37,15 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.featureApps)
+            implementation(projects.featureAppsApi)
             implementation(projects.featureAuth)
             implementation(projects.featureAuthApi)
+            implementation(projects.featureBuildsApi)
+            implementation(projects.featureBuilds)
             
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose)
-            implementation(libs.koin.viewmodel)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.jetbrains.navigation.compose)
         }
     }
 }

@@ -44,10 +44,13 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
         commonMain.dependencies {
+            implementation(projects.featureAppsApi)
             implementation(projects.featureAuthApi)
+            implementation(projects.featureBuildsApi)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
+            implementation(libs.jetbrains.navigation.compose)
         }
     }
 }

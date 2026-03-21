@@ -53,6 +53,7 @@ private fun AppsScreenInternal(
         when (uiState) {
             is Content -> AppsList(
                 apps = uiState.apps,
+                selectedAppSlug = uiState.selectedAppSlug,
                 uiEventHandler = uiEventHandler
             )
 
@@ -72,6 +73,7 @@ private fun AppsScreenInternal(
 @Composable
 private fun AppsList(
     apps: List<AppItem>,
+    selectedAppSlug: String? = null,
     uiEventHandler: (AppsUiEvent) -> Unit
 ) {
     LazyColumn(
@@ -81,9 +83,10 @@ private fun AppsList(
                 color = Color.White
             ),
     ) {
-        items(apps, key = { app -> app.title + app.ownerName }) { app ->
+        items(apps, key = { app -> app.slug }) { app ->
             AppItem(
                 app = app,
+                isSelected = app.slug == selectedAppSlug,
                 uiEventHandler = uiEventHandler
             )
         }
@@ -93,16 +96,18 @@ private fun AppsList(
 @Composable
 private fun AppItem(
     app: AppItem,
+    isSelected: Boolean,
     uiEventHandler: (AppsUiEvent) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(16.dp)
+            .background(if (isSelected) Color.LightGray.copy(alpha = 0.3f) else Color.Transparent)
             .clickable {
                 uiEventHandler(AppsUiEvent.OnAppItemClicked(item = app))
-            },
+            }
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(

@@ -1,7 +1,9 @@
 package de.ahlfeld.bitriseartifacts.apps.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import de.ahlfeld.bitriseartifacts.apps.domain.model.App
 import de.ahlfeld.bitriseartifacts.apps.domain.usecase.GetAppsUseCase
+import de.ahlfeld.bitriseartifacts.apps.testdata.AppsRepositoryFake
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -18,7 +20,12 @@ class AppsViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private val appsRepositoryFake = AppsRepositoryFake()
+    private val viewModel = AppsViewModelImpl(
+        getAppsUseCase = GetAppsUseCase(appsRepositoryFake),
+        saveStateHandle = SavedStateHandle()
+    )
+
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
@@ -26,9 +33,9 @@ class AppsViewModelTest {
 
     @Test
     fun `initial state is Loading`() = runTest {
-        val useCase = GetAppsUseCase(FakeAppsRepository())
+        val useCase = GetAppsUseCase(appsRepositoryFake)
 
-        val viewModel = AppsViewModelImpl(useCase)
+        val viewModel = AppsViewModelImpl(getAppsUseCase = useCase, SavedStateHandle())
 
         assertEquals(AppsUiState.Loading, viewModel.uiState.value)
     }
@@ -38,8 +45,7 @@ class AppsViewModelTest {
         val apps = listOf(
             App("slug", "title", "owner", "avatar")
         )
-        val useCase = GetAppsUseCase(FakeAppsRepository(apps))
-        val viewModel = AppsViewModelImpl(useCase)
+        appsRepositoryFake.result = apps
 
         var actualUiState: AppsUiState? = null
         val job = launch {
@@ -50,22 +56,105 @@ class AppsViewModelTest {
 
         advanceUntilIdle()
 
-        // Wait for the flow to emit the Content state
-        // Since we use UnconfinedTestDispatcher and stateIn, it should be immediate if the flow completes
-
         assertEquals(
             AppsUiState.Content(
                 apps = listOf(
-                    element = AppItem("avatar", "owner", "title")
-                )
+                    AppItem("slug", "avatar", "owner", "title")
+                ),
+                selectedAppSlug = ""
             ), actualUiState
         )
 
         job.cancel()
     }
-}
 
-private class FakeAppsRepository(private val apps: List<App> = emptyList()) :
-    de.ahlfeld.bitriseartifacts.apps.domain.repository.AppsRepository {
-    override suspend fun getApps(): List<App> = apps
+    @Test
+    fun `loadApps failure updates state to Error`() = runTest {
+        appsRepositoryFake.exception = Exception("Network error")
+
+        var actualUiState: AppsUiState? = null
+        val job = launch {
+            viewModel.uiState.collect {
+                actualUiState = it
+            }
+        }
+
+        advanceUntilIdle()
+
+        assertEquals(
+            AppsUiState.Error("Network error"),
+            actualUiState
+        )
+
+        job.cancel()
+    }
+
+    @Test
+    fun `initial state with saved selected slug`() = runTest {
+        val apps = listOf(App("slug", "title", "owner", "avatar"))
+        appsRepositoryFake.result = apps
+        val savedStateHandle = SavedStateHandle(mapOf("selected_app_slug" to "slug"))
+        val viewModelWithSavedState = AppsViewModelImpl(
+            getAppsUseCase = GetAppsUseCase(appsRepositoryFake),
+            saveStateHandle = savedStateHandle
+        )
+
+        var actualUiState: AppsUiState? = null
+        val job = launch {
+            viewModelWithSavedState.uiState.collect {
+                actualUiState = it
+            }
+        }
+
+        advanceUntilIdle()
+
+        assertEquals(
+            AppsUiState.Content(
+                apps = listOf(AppItem("slug", "avatar", "owner", "title")),
+                selectedAppSlug = "slug"
+            ),
+            actualUiState
+        )
+
+        job.cancel()
+    }
+
+    @Test
+    fun `handle OnAppItemClicked updates state and emits navigation event`() = runTest {
+        val apps = listOf(App("slug", "title", "owner", "avatar"))
+        appsRepositoryFake.result = apps
+        val item = AppItem("slug", "avatar", "owner", "title")
+
+        var lastNavigationEvent: AppsUiEvent? = null
+        val navJob = launch {
+            viewModel.navigationEvents.collect {
+                lastNavigationEvent = it
+            }
+        }
+
+        var lastUiState: AppsUiState? = null
+        val stateJob = launch {
+            viewModel.uiState.collect {
+                lastUiState = it
+            }
+        }
+
+        advanceUntilIdle()
+
+        viewModel.handleUiEvent(AppsUiEvent.OnAppItemClicked(item))
+
+        advanceUntilIdle()
+
+        assertEquals(AppsUiEvent.OnAppItemClicked(item), lastNavigationEvent)
+        assertEquals(
+            AppsUiState.Content(
+                apps = listOf(item),
+                selectedAppSlug = "slug"
+            ),
+            lastUiState
+        )
+
+        navJob.cancel()
+        stateJob.cancel()
+    }
 }

@@ -1,9 +1,7 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class ComposeMultiplatformConventionPlugin : Plugin<Project> {
@@ -15,29 +13,28 @@ class ComposeMultiplatformConventionPlugin : Plugin<Project> {
                 apply("com.android.kotlin.multiplatform.library")
             }
 
-            val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
             extensions.configure<KotlinMultiplatformExtension> {
                 sourceSets.configureEach {
                     when (name) {
                         "commonMain" -> {
                             dependencies {
-                                implementation(libs.findLibrary("compose-runtime").get())
-                                implementation(libs.findLibrary("compose-foundation").get())
-                                implementation(libs.findLibrary("compose-material3").get())
-                                implementation(libs.findLibrary("compose-ui").get())
-                                implementation(libs.findLibrary("compose-components-resources").get())
-                                implementation(libs.findLibrary("compose-uiToolingPreview").get())
-                                implementation(libs.findLibrary("androidx-lifecycle-viewmodelCompose").get())
-                                implementation(libs.findLibrary("androidx-lifecycle-runtimeCompose").get())
+                                implementation(project.libs.androidx.lifecycle.viewmodelCompose)
+                                implementation(project.libs.androidx.lifecycle.runtimeCompose)
+                                implementation(project.libs.compose.runtime)
+                                implementation(project.libs.compose.foundation)
+                                implementation(project.libs.compose.material3)
+                                implementation(project.libs.compose.ui)
+                                implementation(project.libs.compose.components.resources)
+                                implementation(project.libs.compose.uiToolingPreview)
                             }
                         }
+
                         "androidMain" -> {
                             dependencies {
-                                implementation(libs.findLibrary("compose-uiToolingPreview").get())
-                                // Use the specific androidx ui-tooling to ensure the IDE can find ComposeViewAdapter
-                                implementation(libs.findLibrary("androidx-compose-uiTooling").get())
-                                implementation(libs.findLibrary("androidx-activity-compose").get())
+                                implementation(project.libs.androidx.activity.compose)
+                                implementation(project.libs.androidx.compose.uiTooling)
+                                implementation(project.libs.compose.uiToolingPreview)
                             }
                         }
                     }
@@ -47,15 +44,20 @@ class ComposeMultiplatformConventionPlugin : Plugin<Project> {
             // For Android debug tools, only if an Android plugin is applied
             pluginManager.withPlugin("com.android.base") {
                 dependencies {
-                    add("androidRuntimeClasspath", libs.findLibrary("androidx-compose-uiTooling").get())
+                    add("androidRuntimeClasspath", project.libs.androidx.compose.uiTooling)
                 }
             }
-            
+
             // For KMP Android library plugin
             pluginManager.withPlugin("com.android.kotlin.multiplatform.library") {
                 dependencies {
                     // Try to add it to common configurations that might be used for rendering previews
-                    runCatching { add("androidRuntimeClasspath", libs.findLibrary("androidx-compose-uiTooling").get()) }
+                    runCatching {
+                        add(
+                            "androidRuntimeClasspath",
+                            project.libs.androidx.compose.uiTooling
+                        )
+                    }
                 }
             }
         }

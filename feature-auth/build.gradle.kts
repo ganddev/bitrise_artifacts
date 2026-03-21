@@ -4,8 +4,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKmpLibraryPluging)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.bitrise.kmp.compose)
+    alias(libs.plugins.bitrise.kmp.koin)
 }
 
 kotlin {
@@ -35,14 +35,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.featureAuthApi)
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose)
-            implementation(libs.koin.viewmodel)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.datastore.preferences.core)
         }
@@ -52,7 +44,6 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.datastore.preferences.android)
-            implementation(libs.koin.android)
         }
     }
 }

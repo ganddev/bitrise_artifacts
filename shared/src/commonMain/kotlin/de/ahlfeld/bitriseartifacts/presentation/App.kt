@@ -1,0 +1,45 @@
+package de.ahlfeld.bitriseartifacts.presentation
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.ahlfeld.bitriseartifacts.apps.presentation.AppsScreen
+import de.ahlfeld.bitriseartifacts.apps.presentation.AppsViewModel
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.GetTokenUseCase
+import de.ahlfeld.bitriseartifacts.feature.auth.presentation.AuthScreen
+import de.ahlfeld.bitriseartifacts.feature.auth.presentation.AuthViewModel
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun App() {
+    MaterialTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize()
+                .safeDrawingPadding(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            val getTokenUseCase: GetTokenUseCase = koinInject()
+            val token by getTokenUseCase().collectAsStateWithLifecycle(null)
+
+            if (token.isNullOrBlank()) {
+                val authViewModel = koinViewModel<AuthViewModel>()
+                AuthScreen(
+                    viewModel = authViewModel,
+                )
+            } else {
+                val viewModel = koinViewModel<AppsViewModel>()
+                AppsScreen(viewModel = viewModel)
+            }
+        }
+    }
+}

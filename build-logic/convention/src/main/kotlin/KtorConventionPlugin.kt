@@ -11,10 +11,17 @@ class KtorConventionPlugin : Plugin<Project> {
             val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
             extensions.configure<KotlinMultiplatformExtension> {
+                sourceSets.getByName("androidMain").dependencies {
+                    implementation(libs.findLibrary("ktor-client-okhttp").get())
+                }
                 sourceSets.getByName("commonMain").dependencies {
                     api(libs.findLibrary("ktor-client-core").get())
+                    implementation(libs.findLibrary("ktor-client-logging").get())
                     implementation(libs.findLibrary("ktor-client-content-negotiation").get())
                     implementation(libs.findLibrary("ktor-serialization-json").get())
+                }
+                sourceSets.getByName("commonTest").dependencies {
+                    implementation(libs.findLibrary("ktor-client-mock").get())
                 }
             }
         }

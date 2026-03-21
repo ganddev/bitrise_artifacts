@@ -1,0 +1,27 @@
+package de.ahlfeld.bitriseartifacts.feature.auth.di
+
+import de.ahlfeld.bitriseartifacts.feature.auth.data.repository.AuthRepositoryImpl
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.repository.AuthRepository
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.ClearTokenUseCase
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.ClearTokenUseCaseImpl
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.GetTokenUseCase
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.GetTokenUseCaseImpl
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.SaveTokenUseCase
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.SaveTokenUseCaseImpl
+import de.ahlfeld.bitriseartifacts.feature.auth.presentation.AuthViewModel
+import org.koin.core.module.Module
+import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
+
+expect val platformAuthModule: Module
+
+val authModule = module {
+    includes(platformAuthModule)
+    singleOf(::AuthRepositoryImpl) bind AuthRepository::class
+    factoryOf(::GetTokenUseCaseImpl) bind GetTokenUseCase::class
+    factoryOf(::SaveTokenUseCaseImpl) bind SaveTokenUseCase::class
+    factoryOf(::ClearTokenUseCaseImpl) bind ClearTokenUseCase::class
+    factoryOf(::AuthViewModel)
+}

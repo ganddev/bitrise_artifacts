@@ -10,6 +10,8 @@ dependencies {
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
+    
+    implementation(libs.koin.android)
 }
 
 android {
@@ -39,4 +41,3 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
-

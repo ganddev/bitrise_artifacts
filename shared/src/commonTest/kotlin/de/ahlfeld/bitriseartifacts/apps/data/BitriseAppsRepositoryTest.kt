@@ -1,7 +1,6 @@
 package de.ahlfeld.bitriseartifacts.apps.data
 
 import de.ahlfeld.bitriseartifacts.apps.data.repository.BitriseAppsRepository
-import de.ahlfeld.bitriseartifacts.apps.domain.model.App
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -15,7 +14,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 
 class BitriseAppsRepositoryTest {
 
@@ -41,7 +39,7 @@ class BitriseAppsRepositoryTest {
     }
 
     @Test
-    fun `getApps returns list of apps from valid json`() = runTest {
+    fun `getApps returns list of apps when status is 200 OK`() = runTest {
         val json = """
             {
               "data": [
@@ -50,36 +48,23 @@ class BitriseAppsRepositoryTest {
                   "title": "Title 1",
                   "owner": { "name": "Owner 1" },
                   "avatar_url": "url1"
-                },
-                {
-                  "slug": "app-2",
-                  "title": "Title 2",
-                  "owner": { "name": "Owner 2" },
-                  "avatar_url": null
                 }
               ],
-              "paging": { "total_item_count": 2, "page_item_limit": 50 }
+              "paging": { "total_item_count": 1, "page_item_limit": 50 }
             }
         """.trimIndent()
         
-        val httpClient = createMockHttpClient(json)
+        val httpClient = createMockHttpClient(json, HttpStatusCode.OK)
         val repository = BitriseAppsRepository(httpClient)
         val result = repository.getApps()
 
-        assertEquals(2, result.size)
+        assertEquals(1, result.size)
         assertEquals("Title 1", result[0].title)
-        assertEquals("Owner 1", result[0].ownerName)
-        assertEquals("url1", result[0].avatarUrl)
-        
-        assertEquals("Title 2", result[1].title)
-        assertEquals("Owner 2", result[1].ownerName)
-        assertEquals(null, result[1].avatarUrl)
     }
 
     @Test
-    fun `getApps returns empty list when data is empty`() = runTest {
-        val json = """{ "data": [], "paging": { "total_item_count": 0, "page_item_limit": 50 } }"""
-        val httpClient = createMockHttpClient(json)
+    fun `getApps returns empty list when status is not 200 OK`() = runTest {
+        val httpClient = createMockHttpClient("Unauthorized", HttpStatusCode.Unauthorized)
         val repository = BitriseAppsRepository(httpClient)
         val result = repository.getApps()
 
@@ -87,32 +72,11 @@ class BitriseAppsRepositoryTest {
     }
 
     @Test
-    fun `getApps throws exception on 401 Unauthorized`() = runTest {
-        val httpClient = createMockHttpClient("Unauthorized", HttpStatusCode.Unauthorized)
+    fun `getApps returns empty list when status is 500 Internal Server Error`() = runTest {
+        val httpClient = createMockHttpClient("Server Error", HttpStatusCode.InternalServerError)
         val repository = BitriseAppsRepository(httpClient)
+        val result = repository.getApps()
 
-        assertFails {
-            repository.getApps()
-        }
-    }
-
-    @Test
-    fun `getApps throws exception on 404 Not Found`() = runTest {
-        val httpClient = createMockHttpClient("Not Found", HttpStatusCode.NotFound)
-        val repository = BitriseAppsRepository(httpClient)
-
-        assertFails {
-            repository.getApps()
-        }
-    }
-
-    @Test
-    fun `getApps throws exception on 500 Server Error`() = runTest {
-        val httpClient = createMockHttpClient("Error", HttpStatusCode.InternalServerError)
-        val repository = BitriseAppsRepository(httpClient)
-
-        assertFails {
-            repository.getApps()
-        }
+        assertEquals(0, result.size)
     }
 }

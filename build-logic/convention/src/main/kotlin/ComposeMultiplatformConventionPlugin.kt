@@ -35,6 +35,8 @@ class ComposeMultiplatformConventionPlugin : Plugin<Project> {
                         "androidMain" -> {
                             dependencies {
                                 implementation(libs.findLibrary("compose-uiToolingPreview").get())
+                                // Use the specific androidx ui-tooling to ensure the IDE can find ComposeViewAdapter
+                                implementation(libs.findLibrary("androidx-compose-uiTooling").get())
                                 implementation(libs.findLibrary("androidx-activity-compose").get())
                             }
                         }
@@ -45,7 +47,15 @@ class ComposeMultiplatformConventionPlugin : Plugin<Project> {
             // For Android debug tools, only if an Android plugin is applied
             pluginManager.withPlugin("com.android.base") {
                 dependencies {
-                    add("androidRuntimeClasspath", libs.findLibrary("compose-uiTooling").get())
+                    add("androidRuntimeClasspath", libs.findLibrary("androidx-compose-uiTooling").get())
+                }
+            }
+            
+            // For KMP Android library plugin
+            pluginManager.withPlugin("com.android.kotlin.multiplatform.library") {
+                dependencies {
+                    // Try to add it to common configurations that might be used for rendering previews
+                    runCatching { add("androidRuntimeClasspath", libs.findLibrary("androidx-compose-uiTooling").get()) }
                 }
             }
         }

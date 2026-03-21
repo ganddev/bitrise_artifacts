@@ -63,7 +63,7 @@ class BitriseAppsRepositoryTest {
     }
 
     @Test
-    fun `getApps returns empty list when status is not 200 OK`() = runTest {
+    fun `getApps returns empty list when status is not 401 OK`() = runTest {
         val httpClient = createMockHttpClient("Unauthorized", HttpStatusCode.Unauthorized)
         val repository = BitriseAppsRepository(httpClient)
         val result = repository.getApps()

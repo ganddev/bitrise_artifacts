@@ -13,17 +13,19 @@ class BitriseAppsRepository(
 ) : AppsRepository {
     override suspend fun getApps(): List<App> {
         val response = httpClient.get("apps")
-        return if (response.status == HttpStatusCode.OK) {
-            response.body<AppsResponseDto>().data.map { dto ->
-                App(
-                    slug = dto.slug,
-                    title = dto.title,
-                    ownerName = dto.owner.name,
-                    avatarUrl = dto.avatarUrl
-                )
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                response.body<AppsResponseDto>().data.map { dto ->
+                    App(
+                        slug = dto.slug,
+                        title = dto.title,
+                        ownerName = dto.owner.name,
+                        avatarUrl = dto.avatarUrl
+                    )
+                }
             }
-        } else {
-            throw Exception("Failed to fetch apps: ${response.status}")
+
+            else -> emptyList()
         }
     }
 }

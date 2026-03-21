@@ -8,7 +8,7 @@ import de.ahlfeld.bitriseartifacts.feature.auth.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-internal class DataStoreAuthRepository(
+internal class AuthRepositoryImpl(
     private val dataStore: DataStore<Preferences>
 ) : AuthRepository {
 

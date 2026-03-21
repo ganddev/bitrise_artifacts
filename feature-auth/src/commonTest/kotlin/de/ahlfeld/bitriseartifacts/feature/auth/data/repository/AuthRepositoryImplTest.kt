@@ -1,9 +1,6 @@
 package de.ahlfeld.bitriseartifacts.feature.auth.data.repository
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
-import de.ahlfeld.bitriseartifacts.feature.auth.domain.repository.AuthRepository
+import de.ahlfeld.bitriseartifacts.feature.auth.testdata.DataStoreFake
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -13,8 +10,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import okio.Path.Companion.toPath
-import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -23,20 +18,13 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthRepositoryImplTest {
 
-    private lateinit var dataStore: DataStore<Preferences>
-    private lateinit var repository: AuthRepository
+    private val dataStore = DataStoreFake()
+    private val repository = AuthRepositoryImpl(dataStore)
     private lateinit var testScope: TestScope
 
     @BeforeTest
     fun setup() {
         testScope = TestScope(UnconfinedTestDispatcher() + Job())
-        // Use a random file name to avoid "multiple DataStores active for the same file"
-        val randomName = "test_${Random.nextInt()}.preferences_pb"
-        dataStore = PreferenceDataStoreFactory.createWithPath(
-            scope = testScope,
-            produceFile = { randomName.toPath() }
-        )
-        repository = AuthRepositoryImpl(dataStore)
     }
 
     @AfterTest
@@ -47,7 +35,6 @@ class AuthRepositoryImplTest {
     @Test
     fun `getToken should return empty string initially`() = runTest {
         val token = repository.getToken().first()
-
         assertEquals("", token)
     }
 
@@ -64,7 +51,7 @@ class AuthRepositoryImplTest {
     @Test
     fun `clearToken should remove token from dataStore`() = runTest {
         val storedToken = mutableListOf<String>()
-        val job = launch {
+        val job = launch(UnconfinedTestDispatcher()) {
             repository.getToken().collectLatest {
                 storedToken.add(it)
             }
@@ -73,8 +60,11 @@ class AuthRepositoryImplTest {
         repository.saveToken("some-token")
         repository.clearToken()
 
-        assertEquals("some-token", storedToken[0])
-        assertEquals("", storedToken[1])
+        // Initial empty string, then "some-token", then "" after clear
+        assertEquals(3, storedToken.size)
+        assertEquals("", storedToken[0])
+        assertEquals("some-token", storedToken[1])
+        assertEquals("", storedToken[2])
 
         job.cancel()
     }

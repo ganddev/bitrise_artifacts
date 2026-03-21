@@ -23,10 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Devices.PIXEL_7_PRO
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import de.ahlfeld.bitriseartifacts.apps.presentation.AppsUiState.Content
 import de.ahlfeld.bitriseartifacts.apps.presentation.AppsUiState.Error
 import de.ahlfeld.bitriseartifacts.apps.presentation.AppsUiState.Loading
@@ -48,7 +46,10 @@ private fun AppsScreenInternal(
     uiState: AppsUiState,
     uiEventHandler: (AppsUiEvent) -> Unit = {}
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         when (uiState) {
             is Content -> AppsList(
                 apps = uiState.apps,
@@ -80,7 +81,7 @@ private fun AppsList(
                 color = Color.White
             ),
     ) {
-        items(apps) { app ->
+        items(apps, key = { app -> app.title + app.ownerName }) { app ->
             AppItem(
                 app = app,
                 uiEventHandler = uiEventHandler
@@ -104,23 +105,14 @@ private fun AppItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (app.avatarUrl != null) {
-            /*RemoteImage(
-                url = app.avatarUrl,
-                contentDescription = app.title,
-                modifier = Modifier
-                    .size(IMAGE_SIZE)
-                    .clip(CircleShape)
-            )*/
-        } else {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .size(IMAGE_SIZE)
-                    .clip(CircleShape)
-                    .background(Color.Red)
-            )
-        }
+        AsyncImage(
+            model = app.avatarUrl,
+            contentDescription = app.title,
+            modifier = Modifier
+                .size(IMAGE_SIZE)
+                .clip(CircleShape)
+                .background(Color.Gray.copy(alpha = 0.2f))
+        )
 
         Column(
             modifier = Modifier
@@ -138,19 +130,5 @@ private fun AppItem(
                 style = MaterialTheme.typography.bodySmall
             )
         }
-    }
-}
-
-
-@Composable
-@Preview(
-    showSystemUi = true,
-    device = PIXEL_7_PRO
-)
-private fun AppsScreenPreview(
-    @PreviewParameter(AppsUiStateProvider::class) uiState: AppsUiState
-) {
-    MaterialTheme {
-        AppsScreenInternal(uiState)
     }
 }

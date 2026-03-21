@@ -23,7 +23,7 @@ class BitriseAppsRepository(
                 )
             }
         } else {
-            emptyList()
+            throw Exception("Failed to fetch apps: ${response.status}")
         }
     }
 }

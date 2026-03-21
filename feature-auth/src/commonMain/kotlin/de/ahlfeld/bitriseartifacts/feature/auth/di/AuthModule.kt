@@ -2,6 +2,8 @@ package de.ahlfeld.bitriseartifacts.feature.auth.di
 
 import de.ahlfeld.bitriseartifacts.feature.auth.data.repository.DataStoreAuthRepository
 import de.ahlfeld.bitriseartifacts.feature.auth.domain.repository.AuthRepository
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.ClearTokenUseCase
+import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.ClearTokenUseCaseImpl
 import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.GetTokenUseCase
 import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.GetTokenUseCaseImpl
 import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.SaveTokenUseCase
@@ -20,5 +22,6 @@ val authModule = module {
     singleOf(::DataStoreAuthRepository) bind AuthRepository::class
     factoryOf(::GetTokenUseCaseImpl) bind GetTokenUseCase::class
     factoryOf(::SaveTokenUseCaseImpl) bind SaveTokenUseCase::class
+    factoryOf(::ClearTokenUseCaseImpl) bind ClearTokenUseCase::class
     factoryOf(::AuthViewModel)
 }

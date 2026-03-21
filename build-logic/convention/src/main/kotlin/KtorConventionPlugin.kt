@@ -16,6 +16,7 @@ class KtorConventionPlugin : Plugin<Project> {
                 }
                 sourceSets.getByName("commonMain").dependencies {
                     api(libs.findLibrary("ktor-client-core").get())
+                    implementation(libs.findLibrary("ktor-client-logging").get())
                     implementation(libs.findLibrary("ktor-client-content-negotiation").get())
                     implementation(libs.findLibrary("ktor-serialization-json").get())
                 }

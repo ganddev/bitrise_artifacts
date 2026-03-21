@@ -20,5 +20,9 @@ gradlePlugin {
             id = "bitriseartifacts.compose.multiplatform"
             implementationClass = "ComposeMultiplatformConventionPlugin"
         }
+        register("koin") {
+            id = "bitriseartifacts.koin"
+            implementationClass = "KoinConventionPlugin"
+        }
     }
 }

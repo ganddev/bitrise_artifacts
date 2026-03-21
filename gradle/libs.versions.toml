@@ -93,3 +93,4 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 # KMP Plugins
 bitrise-kmp-network = { id = "bitriseartifacts.ktor" }
 bitrise-kmp-compose = { id = "bitriseartifacts.compose.multiplatform" }
+bitrise-kmp-koin = { id = "bitriseartifacts.koin" }

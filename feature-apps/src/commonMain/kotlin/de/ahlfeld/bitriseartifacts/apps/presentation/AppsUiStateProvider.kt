@@ -14,11 +14,13 @@ class AppsUiStateProvider : PreviewParameterProvider<AppsUiState> {
             AppsUiState.Content(
                 apps = listOf(
                     AppItem(
+                        slug = "slug-1",
                         avatarUrl = "https://example.com/avatar1.png",
                         ownerName = "Owner Name 1",
                         title = "App Title 1"
                     ),
                     AppItem(
+                        slug = "slug-2",
                         avatarUrl = "https://example.com/avatar2.png",
                         ownerName = "Owner Name 2",
                         title = "App Title 2"

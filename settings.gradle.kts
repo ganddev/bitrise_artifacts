@@ -5,33 +5,26 @@ includeBuild("build-logic")
 
 pluginManagement {
     repositories {
-        google {
-            mavenContent {
-                includeGroupAndSubgroups("androidx")
-                includeGroupAndSubgroups("com.android")
-                includeGroupAndSubgroups("com.google")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
+        maven("https://maven.pkg.jetbrains.com/public")
     }
 }
 
 dependencyResolutionManagement {
     repositories {
-        google {
-            mavenContent {
-                includeGroupAndSubgroups("androidx")
-                includeGroupAndSubgroups("com.android")
-                includeGroupAndSubgroups("com.google")
-            }
-        }
+        google()
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.com/public")
     }
 }
 
 include(":androidApp")
 include(":feature-apps")
+include(":feature-apps-api")
 include(":feature-auth")
 include(":feature-auth-api")
+include(":feature-builds")
 include(":shared")
+include(":feature-builds-api")

@@ -45,8 +45,10 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(projects.featureBuildsApi)
+            implementation(projects.featureArtifactsApi)
+            implementation(projects.featureArtifactDetailApi)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.compose.material.icons.core)
+            implementation(libs.compose.material.icons.extended)
             implementation(libs.jetbrains.navigation.compose)
         }
     }

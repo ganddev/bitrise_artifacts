@@ -1,6 +1,6 @@
 package de.ahlfeld.bitriseartifacts.builds.domain.model
 
-data class Build(
+internal data class Build(
     val buildNumber: Int,
     val branch: String,
     val triggeredAt: String,

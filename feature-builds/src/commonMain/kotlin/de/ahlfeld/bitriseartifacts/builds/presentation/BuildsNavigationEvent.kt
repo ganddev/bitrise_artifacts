@@ -1,5 +1,11 @@
 package de.ahlfeld.bitriseartifacts.builds.presentation
 
-sealed interface BuildsNavigationEvent {
-    object Back : BuildsNavigationEvent
+internal sealed interface BuildsNavigationEvent {
+    data object Back : BuildsNavigationEvent
+
+    data class ShowArtifactDetails(
+        val appSlug: String,
+        val artifactSlugs: List<String>,
+        val buildSlug: String
+    ) : BuildsNavigationEvent
 }

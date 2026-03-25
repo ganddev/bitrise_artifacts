@@ -5,6 +5,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import de.ahlfeld.bitriseartifacts.artifactdetail.navigation.ArtifactDetailRoute
+import de.ahlfeld.bitriseartifacts.builds.presentation.BuildsNavigationEvent
 import de.ahlfeld.bitriseartifacts.builds.presentation.BuildsScreen
 import de.ahlfeld.bitriseartifacts.builds.presentation.BuildsViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -17,10 +19,21 @@ fun NavGraphBuilder.buildsScreen(navController: NavController) {
             parameters = { parametersOf(route.appSlug) }
         )
         LaunchedEffect(buildsViewModel) {
-            buildsViewModel.navigationEvents.collect {
-                navController.popBackStack()
+            buildsViewModel.navigationEvents.collect { event ->
+                when (event) {
+                    is BuildsNavigationEvent.Back -> navController.popBackStack()
+                    is BuildsNavigationEvent.ShowArtifactDetails -> navController.navigate(
+                        ArtifactDetailRoute(
+                            appSlug = event.appSlug,
+                            artifactSlugs = event.artifactSlugs,
+                            buildSlug = event.buildSlug
+                        )
+                    )
+                }
             }
         }
-        BuildsScreen(viewModel = buildsViewModel)
+        BuildsScreen(
+            viewModel = buildsViewModel,
+        )
     }
 }

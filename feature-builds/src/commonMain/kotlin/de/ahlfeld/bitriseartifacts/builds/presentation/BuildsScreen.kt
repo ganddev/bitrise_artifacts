@@ -1,5 +1,6 @@
 package de.ahlfeld.bitriseartifacts.builds.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,19 +38,22 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BuildsScreen(
+internal fun BuildsScreen(
     viewModel: BuildsViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    BuildsScreenInternal(uiState = uiState, uiEventHandler = viewModel::handleUiEvent)
+    BuildsScreenInternal(
+        uiState = uiState,
+        uiEventHandler = viewModel::handleUiEvent,
+    )
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun BuildsScreenInternal(
     uiState: BuildsUiState,
-    uiEventHandler: (BuildsUiEvent) -> Unit = {}
+    uiEventHandler: (BuildsUiEvent) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -85,15 +91,21 @@ private fun BuildsScreenInternal(
                     modifier = Modifier.align(Alignment.Center)
                 )
 
-                is BuildsUiState.Content -> BuildsList(uiState.builds)
+                is BuildsUiState.Content -> BuildsList(
+                    builds = uiState.builds,
+                    uiEventHandler = uiEventHandler
+                )
             }
         }
     }
 }
 
 @Composable
-private fun BuildsList(builds: List<BuildItem>) {
-    if(builds.isEmpty()) {
+private fun BuildsList(
+    builds: List<BuildItem>,
+    uiEventHandler: (BuildsUiEvent) -> Unit = {},
+) {
+    if (builds.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -110,26 +122,53 @@ private fun BuildsList(builds: List<BuildItem>) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(builds, key = { it.buildNumber }) { build ->
-            BuildItemRow(build)
+            BuildItemRow(
+                build = build,
+                onClick = {
+                    uiEventHandler(
+                        BuildsUiEvent.OnBuildClicked(
+                            artifactSlugs = build.artifactSlugs,
+                            buildSlug = build.buildSlug
+                        )
+                    )
+                }
+            )
         }
     }
 }
 
 @Composable
-private fun BuildItemRow(build: BuildItem) {
+private fun BuildItemRow(
+    build: BuildItem,
+    onClick: () -> Unit = {}
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "#${build.buildNumber}",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "#${build.buildNumber}",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    if (build.artifactSlugs.isNotEmpty()) {
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.Android,
+                            contentDescription = "APK Available",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color(0xFF3DDC84) // Android Green
+                        )
+                    }
+                }
                 Text(
                     text = build.branch,
                     style = MaterialTheme.typography.bodyMedium,
@@ -161,11 +200,11 @@ private fun BuildItemRow(build: BuildItem) {
 @Composable
 @Preview
 private fun BuildsScreenPreview(
-    @PreviewParameter(BuildsUiStatePreviewParameterProvider::class) uiState : BuildsUiState
+    @PreviewParameter(BuildsUiStatePreviewParameterProvider::class) uiState: BuildsUiState
 ) {
     MaterialTheme {
         BuildsScreenInternal(
-            uiState = uiState
+            uiState = uiState,
         )
     }
 }

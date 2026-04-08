@@ -20,6 +20,7 @@ import de.ahlfeld.bitriseartifacts.apps.navigation.appsScreen
 import de.ahlfeld.bitriseartifacts.apps.presentation.AppsScreen
 import de.ahlfeld.bitriseartifacts.apps.presentation.AppsUiEvent
 import de.ahlfeld.bitriseartifacts.apps.presentation.AppsViewModel
+import de.ahlfeld.bitriseartifacts.artifact_detail.navigation.artifactDetailsScreen
 import de.ahlfeld.bitriseartifacts.builds.navigation.BuildRoute
 import de.ahlfeld.bitriseartifacts.builds.navigation.buildsScreen
 import de.ahlfeld.bitriseartifacts.feature.auth.domain.usecase.GetTokenUseCase
@@ -91,6 +92,7 @@ fun AuthenticatedApp() {
                 ) {
                     appsScreen(navController)
                     buildsScreen(navController)
+                    artifactDetailsScreen(navController)
                 }
             }
         }

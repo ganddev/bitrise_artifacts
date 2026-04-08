@@ -2,7 +2,10 @@ package de.ahlfeld.bitriseartifacts.builds.presentation
 
 sealed interface BuildsUiState {
     data object Loading : BuildsUiState
-    data class Content(val builds: List<BuildItem>) : BuildsUiState
+    data class Content(
+        val builds: List<BuildItem>,
+        val selectedBuildSlug: String? = null
+    ) : BuildsUiState
     data class Error(val message: String) : BuildsUiState
 }
 
@@ -12,5 +15,6 @@ data class BuildItem(
     val triggeredAt: String,
     val finishedAt: String?,
     val commitHash: String?,
-    val status: Int
+    val buildSlug: String,
+    val artifactSlugs : List<String> = emptyList()
 )

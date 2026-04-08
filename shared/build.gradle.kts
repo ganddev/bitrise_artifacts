@@ -42,6 +42,10 @@ kotlin {
             implementation(projects.featureAuthApi)
             implementation(projects.featureBuildsApi)
             implementation(projects.featureBuilds)
+            implementation(projects.featureArtifacts)
+            implementation(projects.featureArtifactsApi)
+            implementation(projects.featureArtifactDetailApi)
+            implementation(projects.featureArtifactDetail)
             
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)

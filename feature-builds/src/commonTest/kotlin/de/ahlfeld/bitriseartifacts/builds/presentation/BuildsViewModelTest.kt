@@ -1,9 +1,11 @@
 package de.ahlfeld.bitriseartifacts.builds.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import de.ahlfeld.bitriseartifacts.builds.domain.model.Build
 import de.ahlfeld.bitriseartifacts.builds.domain.repository.BuildsRepository
 import de.ahlfeld.bitriseartifacts.builds.domain.usecase.GetBuildsUseCase
 import de.ahlfeld.bitriseartifacts.builds.testdata.BuildsRepositoryFake
+import de.ahlfeld.bitriseartifacts.builds.testdata.GetArtifactSlugsUseCaseFake
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -22,9 +24,15 @@ class BuildsViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
 
     private val buildsRepositoryFake = BuildsRepositoryFake()
+    private val getArtifactSlugsUseCaseFake = GetArtifactSlugsUseCaseFake()
+
+    private val savedStateHandle = SavedStateHandle().apply {
+        set("appSlug", "test-app-slug")
+    }
     private val viewModel = BuildsViewModelImpl(
-        "app-slug",
-        GetBuildsUseCase(buildsRepositoryFake)
+        savedStateHandle,
+        GetBuildsUseCase(buildsRepositoryFake),
+        getArtifactSlugs = getArtifactSlugsUseCaseFake,
     )
 
     @BeforeTest
@@ -39,6 +47,8 @@ class BuildsViewModelTest {
             Build(2, "develop", "2023-01-02T10:00:00Z", null, "hash2", "slug2", 1)
         )
         buildsRepositoryFake.result = builds
+        getArtifactSlugsUseCaseFake.result = listOf("slug1", "slug2")
+
 
         val states = mutableListOf<BuildsUiState>()
         val job = launch(testDispatcher) {
@@ -84,7 +94,12 @@ class BuildsViewModelTest {
             }
         }
         val useCase = GetBuildsUseCase(repository)
-        val viewModel = BuildsViewModelImpl("app-slug", useCase)
+
+        val viewModel = BuildsViewModelImpl(
+            savedStateHandle,
+            getBuildsUseCase = useCase,
+            getArtifactSlugs = getArtifactSlugsUseCaseFake
+        )
 
         val states = mutableListOf<BuildsUiState>()
         val job = launch(testDispatcher) {

@@ -1,7 +1,11 @@
 package de.ahlfeld.bitriseartifacts.builds.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import de.ahlfeld.bitriseartifacts.artifacts.api.usecase.GetArtifactSlugsUseCase
 import de.ahlfeld.bitriseartifacts.builds.domain.usecase.GetBuildsUseCase
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -12,9 +16,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 internal class BuildsViewModelImpl(
-    private val appSlug: String,
-    private val getBuildsUseCase: GetBuildsUseCase
+    savedStateHandle: SavedStateHandle,
+    private val getBuildsUseCase: GetBuildsUseCase,
+    private val getArtifactSlugs: GetArtifactSlugsUseCase,
 ) : BuildsViewModel() {
+
+    private val appSlug : String = checkNotNull(savedStateHandle["appSlug"])
 
     private val _uiState = MutableStateFlow<BuildsUiState>(BuildsUiState.Loading)
 
@@ -36,16 +43,19 @@ internal class BuildsViewModelImpl(
                 .onSuccess { builds ->
                     val items = builds
                         .sortedByDescending { it.triggeredAt }
-                        .map {
-                            BuildItem(
-                                buildNumber = it.buildNumber,
-                                branch = it.branch,
-                                triggeredAt = it.triggeredAt,
-                                finishedAt = it.finishedAt,
-                                commitHash = it.commitHash,
-                                status = it.status
-                            )
-                        }
+                        .map { build ->
+                            async {
+                                BuildItem(
+                                    buildNumber = build.buildNumber,
+                                    branch = build.branch,
+                                    triggeredAt = build.triggeredAt,
+                                    finishedAt = build.finishedAt,
+                                    commitHash = build.commitHash,
+                                    buildSlug = build.slug,
+                                    artifactSlugs = getArtifactSlugs(appSlug, build.slug)
+                                )
+                            }
+                        }.awaitAll()
                     _uiState.value = BuildsUiState.Content(items)
                 }
                 .onFailure {
@@ -58,6 +68,22 @@ internal class BuildsViewModelImpl(
         when (event) {
             BuildsUiEvent.OnBackClicked ->
                 viewModelScope.launch { _navigationEvents.emit(BuildsNavigationEvent.Back) }
+
+            is BuildsUiEvent.OnBuildClicked -> {
+                val currentState = _uiState.value
+                if (currentState is BuildsUiState.Content) {
+                    _uiState.value = currentState.copy(selectedBuildSlug = event.buildSlug)
+                    viewModelScope.launch {
+                        _navigationEvents.emit(
+                            BuildsNavigationEvent.ShowArtifactDetails(
+                                appSlug,
+                                artifactSlugs = event.artifactSlugs,
+                                buildSlug = event.buildSlug
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
 }

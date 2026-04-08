@@ -1,0 +1,23 @@
+{
+  "data": {
+    "artifact_meta": {
+      "artifact_type": "string",
+      "id": "string",
+      "title": "string",
+      "app_info": {
+        "app_name": "string",
+        "package_name": "string",
+        "version_name": "string",
+        "version_code": "string"
+      }
+    },
+    "artifact_type": "string",
+    "expiring_download_url": "string",
+    "file_size_bytes": 0,
+    "intermediate_file_info": {},
+    "is_public_page_enabled": true,
+    "public_install_page_url": "string",
+    "slug": "string",
+    "title": "string"
+  }
+}

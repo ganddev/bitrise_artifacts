@@ -33,7 +33,6 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.koin.navigation)
             implementation(libs.kotlinx.serialization.json)
         }
     }

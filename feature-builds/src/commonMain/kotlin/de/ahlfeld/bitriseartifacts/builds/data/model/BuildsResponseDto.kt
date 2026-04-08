@@ -4,13 +4,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class BuildsResponseDto(
+internal data class BuildsResponseDto(
     @SerialName("data") val data: List<BuildDto>,
     @SerialName("paging") val paging: PagingDto
 )
 
 @Serializable
-data class BuildDto(
+internal data class BuildDto(
     @SerialName("build_number") val buildNumber: Int,
     @SerialName("branch") val branch: String,
     @SerialName("triggered_at") val triggeredAt: String,
@@ -21,7 +21,7 @@ data class BuildDto(
 )
 
 @Serializable
-data class PagingDto(
+internal data class PagingDto(
     @SerialName("total_item_count") val totalItemCount: Int,
     @SerialName("page_item_limit") val pageItemLimit: Int,
     @SerialName("next") val next: String? = null

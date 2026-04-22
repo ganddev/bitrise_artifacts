@@ -5,9 +5,10 @@ plugins {
 group = "de.ahlfeld.bitriseartifacts.buildlogic"
 
 dependencies {
-    compileOnly(libs.android.gradlePlugin)
-    compileOnly(libs.kotlin.gradlePlugin)
-    compileOnly(libs.compose.gradlePlugin)
+    implementation(libs.android.gradlePlugin)
+    implementation(libs.kotlin.gradlePlugin)
+    implementation(libs.kotlin.serialization.gradlePlugin)
+    implementation(libs.compose.gradlePlugin)
 }
 
 gradlePlugin {
@@ -23,6 +24,10 @@ gradlePlugin {
         register("koin") {
             id = "bitriseartifacts.koin"
             implementationClass = "KoinConventionPlugin"
+        }
+        register("feature") {
+            id = "bitriseartifacts.feature"
+            implementationClass = "FeatureConventionPlugin"
         }
     }
 }

@@ -61,11 +61,11 @@ class BitriseBuildsRepositoryTest {
         )
         val repository = BitriseBuildsRepository(httpClient)
 
-        val builds = repository.getBuilds("app-slug")
+        val result = repository.getBuilds("app-slug")
 
-        assertEquals(1, builds.size)
-        assertEquals(1, builds[0].buildNumber)
-        assertEquals("main", builds[0].branch)
+        assertEquals(1, result.builds.size)
+        assertEquals(1, result.builds[0].buildNumber)
+        assertEquals("main", result.builds[0].branch)
     }
 
     @Test
@@ -75,8 +75,8 @@ class BitriseBuildsRepositoryTest {
         )
         val repository = BitriseBuildsRepository(httpClient)
 
-        val builds = repository.getBuilds("app-slug")
+        val result = repository.getBuilds("app-slug")
 
-        assertTrue(builds.isEmpty())
+        assertTrue(result.builds.isEmpty())
     }
 }

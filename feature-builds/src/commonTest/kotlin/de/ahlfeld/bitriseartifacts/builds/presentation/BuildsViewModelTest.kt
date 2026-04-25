@@ -2,7 +2,7 @@ package de.ahlfeld.bitriseartifacts.builds.presentation
 
 import androidx.lifecycle.SavedStateHandle
 import de.ahlfeld.bitriseartifacts.builds.domain.model.Build
-import de.ahlfeld.bitriseartifacts.builds.domain.repository.BuildsRepository
+import de.ahlfeld.bitriseartifacts.builds.domain.model.BuildsPage
 import de.ahlfeld.bitriseartifacts.builds.domain.usecase.GetBuildsUseCase
 import de.ahlfeld.bitriseartifacts.builds.testdata.BuildsRepositoryFake
 import de.ahlfeld.bitriseartifacts.builds.testdata.GetArtifactSlugsUseCaseFake
@@ -29,6 +29,7 @@ class BuildsViewModelTest {
     private val savedStateHandle = SavedStateHandle().apply {
         set("appSlug", "test-app-slug")
     }
+
     private val viewModel = BuildsViewModelImpl(
         savedStateHandle,
         GetBuildsUseCase(buildsRepositoryFake),
@@ -46,7 +47,7 @@ class BuildsViewModelTest {
             Build(1, "main", "2023-01-01T10:00:00Z", null, "hash1", "slug1", 1),
             Build(2, "develop", "2023-01-02T10:00:00Z", null, "hash2", "slug2", 1)
         )
-        buildsRepositoryFake.result = builds
+        buildsRepositoryFake.result = BuildsPage(builds, null)
         getArtifactSlugsUseCaseFake.result = listOf("slug1", "slug2")
 
 
@@ -70,7 +71,7 @@ class BuildsViewModelTest {
     @Test
     fun `loadBuilds success with empty list updates state to Content with empty list`() = runTest {
         val builds = emptyList<Build>()
-        buildsRepositoryFake.result = builds
+        buildsRepositoryFake.result = BuildsPage(builds, null)
 
         val states = mutableListOf<BuildsUiState>()
         val job = launch(testDispatcher) {
@@ -88,10 +89,9 @@ class BuildsViewModelTest {
 
     @Test
     fun `loadBuilds failure updates state to Error`() = runTest {
-        val repository = object : BuildsRepository {
-            override suspend fun getBuilds(appSlug: String): List<Build> {
-                throw Exception("Network error")
-            }
+        val repository = BuildsRepositoryFake().apply {
+            exception = Exception("Network error")
+
         }
         val useCase = GetBuildsUseCase(repository)
 
@@ -136,7 +136,7 @@ class BuildsViewModelTest {
 
     @Test
     fun `handleUiEvent OnBackClicked emits Back navigation event`() = runTest {
-        buildsRepositoryFake.result = emptyList()
+        buildsRepositoryFake.result = BuildsPage(emptyList(), null)
         val events = mutableListOf<BuildsNavigationEvent>()
         val job = launch(testDispatcher) {
             viewModel.navigationEvents.collect { events.add(it) }
@@ -150,4 +150,3 @@ class BuildsViewModelTest {
         job.cancel()
     }
 }
-

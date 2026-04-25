@@ -1,19 +1,14 @@
 package de.ahlfeld.bitriseartifacts.builds.testdata
 
-import de.ahlfeld.bitriseartifacts.builds.domain.model.Build
+import de.ahlfeld.bitriseartifacts.builds.domain.model.BuildsPage
 import de.ahlfeld.bitriseartifacts.builds.domain.repository.BuildsRepository
 
-internal class BuildsRepositoryFake :
-    BuildsRepository {
-    var result: List<Build>? = null
+internal class BuildsRepositoryFake : BuildsRepository {
+    var result: BuildsPage? = null
+    var exception: Exception? = null
 
-    var exception : Exception? = null
-
-    override suspend fun getBuilds(appSlug: String): List<Build> {
-        exception?.let {
-            throw it
-        }
+    override suspend fun getBuilds(appSlug: String, next: String?): BuildsPage {
+        exception?.let { throw it }
         return result!!
-
     }
 }

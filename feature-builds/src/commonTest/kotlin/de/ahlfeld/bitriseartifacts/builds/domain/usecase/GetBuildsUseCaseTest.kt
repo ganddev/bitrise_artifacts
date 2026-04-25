@@ -1,7 +1,9 @@
 package de.ahlfeld.bitriseartifacts.builds.domain.usecase
 
 import de.ahlfeld.bitriseartifacts.builds.domain.model.Build
+import de.ahlfeld.bitriseartifacts.builds.domain.model.BuildsPage
 import de.ahlfeld.bitriseartifacts.builds.domain.repository.BuildsRepository
+import de.ahlfeld.bitriseartifacts.builds.testdata.BuildsRepositoryFake
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,24 +16,23 @@ class GetBuildsUseCaseTest {
         val builds = listOf(
             Build(1, "main", "2023-01-01T10:00:00Z", null, "hash1", "slug1", 1)
         )
-        val repository = object : BuildsRepository {
-            override suspend fun getBuilds(appSlug: String): List<Build> = builds
+        val buildsPage = BuildsPage(builds, null)
+        val repository = BuildsRepositoryFake().apply {
+            result = buildsPage
         }
         val useCase = GetBuildsUseCase(repository)
 
         val result = useCase("app-slug")
 
         assertTrue(result.isSuccess)
-        assertEquals(builds, result.getOrNull())
+        assertEquals(buildsPage, result.getOrNull())
     }
 
     @Test
     fun `invoke returns failure when repository throws exception`() = runTest {
         val exception = Exception("Network error")
-        val repository = object : BuildsRepository {
-            override suspend fun getBuilds(appSlug: String): List<Build> {
-                throw exception
-            }
+        val repository = BuildsRepositoryFake().apply {
+            this.exception = exception
         }
         val useCase = GetBuildsUseCase(repository)
 

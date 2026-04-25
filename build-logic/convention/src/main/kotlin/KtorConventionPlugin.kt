@@ -8,17 +8,19 @@ class KtorConventionPlugin : Plugin<Project> {
         with(target) {
 
             extensions.configure<KotlinMultiplatformExtension> {
-                sourceSets.getByName("androidMain").dependencies {
-                    implementation(project.libs.ktor.client.okhttp)
-                }
-                sourceSets.getByName("commonMain").dependencies {
-                    api(project.libs.ktor.client.core)
-                    implementation(project.libs.ktor.client.logging)
-                    implementation(project.libs.ktor.client.content.negotiation)
-                    implementation(project.libs.ktor.serialization.json)
-                }
-                sourceSets.getByName("commonTest").dependencies {
-                    implementation(project.libs.ktor.client.mock)
+                with(sourceSets) {
+                    androidMain.dependencies {
+                        implementation(project.libs.ktor.client.okhttp)
+                    }
+                    commonMain.dependencies {
+                        implementation(project.libs.ktor.client.core)
+                        implementation(project.libs.ktor.client.logging)
+                        implementation(project.libs.ktor.client.content.negotiation)
+                        implementation(project.libs.ktor.serialization.json)
+                    }
+                    commonTest.dependencies {
+                        implementation(project.libs.ktor.client.mock)
+                    }
                 }
             }
         }

@@ -4,7 +4,9 @@ sealed interface BuildsUiState {
     data object Loading : BuildsUiState
     data class Content(
         val builds: List<BuildItem>,
-        val selectedBuildSlug: String? = null
+        val selectedBuildSlug: String? = null,
+        val isLoadingMore: Boolean = false,
+        val hasMore: Boolean = false
     ) : BuildsUiState
     data class Error(val message: String) : BuildsUiState
 }

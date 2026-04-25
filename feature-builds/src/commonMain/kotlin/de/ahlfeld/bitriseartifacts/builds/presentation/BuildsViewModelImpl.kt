@@ -3,6 +3,7 @@ package de.ahlfeld.bitriseartifacts.builds.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import de.ahlfeld.bitriseartifacts.artifacts.api.usecase.GetArtifactSlugsUseCase
+import de.ahlfeld.bitriseartifacts.builds.domain.model.Build
 import de.ahlfeld.bitriseartifacts.builds.domain.usecase.GetBuildsUseCase
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -21,7 +22,9 @@ internal class BuildsViewModelImpl(
     private val getArtifactSlugs: GetArtifactSlugsUseCase,
 ) : BuildsViewModel() {
 
-    private val appSlug : String = checkNotNull(savedStateHandle["appSlug"])
+    private val appSlug: String = checkNotNull(savedStateHandle["appSlug"])
+
+    private var nextPage: String? = null
 
     private val _uiState = MutableStateFlow<BuildsUiState>(BuildsUiState.Loading)
 
@@ -40,28 +43,59 @@ internal class BuildsViewModelImpl(
         viewModelScope.launch {
             _uiState.value = BuildsUiState.Loading
             getBuildsUseCase(appSlug)
-                .onSuccess { builds ->
-                    val items = builds
-                        .sortedByDescending { it.triggeredAt }
-                        .map { build ->
-                            async {
-                                BuildItem(
-                                    buildNumber = build.buildNumber,
-                                    branch = build.branch,
-                                    triggeredAt = build.triggeredAt,
-                                    finishedAt = build.finishedAt,
-                                    commitHash = build.commitHash,
-                                    buildSlug = build.slug,
-                                    artifactSlugs = getArtifactSlugs(appSlug, build.slug)
-                                )
-                            }
-                        }.awaitAll()
-                    _uiState.value = BuildsUiState.Content(items)
+                .onSuccess { buildsPage ->
+                    nextPage = buildsPage.next
+                    val items = mapBuildsToItems(buildsPage.builds)
+                    _uiState.value = BuildsUiState.Content(
+                        builds = items,
+                        hasMore = nextPage != null
+                    )
                 }
                 .onFailure {
                     _uiState.value = BuildsUiState.Error(it.message ?: "Unknown error")
                 }
         }
+    }
+
+    private fun loadNextPage() {
+        val currentState = _uiState.value
+        if (currentState !is BuildsUiState.Content || currentState.isLoadingMore || nextPage == null) return
+
+        _uiState.value = currentState.copy(isLoadingMore = true)
+
+        viewModelScope.launch {
+            getBuildsUseCase(appSlug, nextPage)
+                .onSuccess { buildsPage ->
+                    nextPage = buildsPage.next
+                    val newItems = mapBuildsToItems(buildsPage.builds)
+                    _uiState.value = currentState.copy(
+                        builds = currentState.builds + newItems,
+                        isLoadingMore = false,
+                        hasMore = nextPage != null
+                    )
+                }
+                .onFailure {
+                    _uiState.value = currentState.copy(isLoadingMore = false)
+                }
+        }
+    }
+
+    private suspend fun mapBuildsToItems(builds: List<Build>): List<BuildItem> {
+        return builds
+            .sortedByDescending { it.triggeredAt }
+            .map { build ->
+                viewModelScope.async {
+                    BuildItem(
+                        buildNumber = build.buildNumber,
+                        branch = build.branch,
+                        triggeredAt = build.triggeredAt,
+                        finishedAt = build.finishedAt,
+                        commitHash = build.commitHash,
+                        buildSlug = build.slug,
+                        artifactSlugs = getArtifactSlugs(appSlug, build.slug)
+                    )
+                }
+            }.awaitAll()
     }
 
     override fun handleUiEvent(event: BuildsUiEvent) {
@@ -84,6 +118,8 @@ internal class BuildsViewModelImpl(
                     }
                 }
             }
+
+            BuildsUiEvent.OnPageEnd -> loadNextPage()
         }
     }
 }
